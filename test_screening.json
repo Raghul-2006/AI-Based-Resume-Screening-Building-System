@@ -1,0 +1,8 @@
+{
+  "jobTitle": "Senior Python Developer",
+  "jobDescription": "We are looking for a Senior Python Developer with 5+ years of experience. Required skills: Python, FastAPI, PostgreSQL, Docker, Kubernetes, AWS. Nice to have: PyTorch, Redis, microservices architecture.",
+  "mustSkills": [],
+  "resumeTexts": [
+    "John Smith | john@example.com | (555) 123-4567\nSenior Python Engineer\n\nExperience:\n- Senior Python Developer at TechCorp (2020-present) - 4 years\n  * Built FastAPI microservices for real-time data processing\n  * Designed PostgreSQL schemas for 100M+ records\n  * Deployed applications on AWS using Docker and Kubernetes\n  * Mentored 5 junior developers\n\n- Python Developer at DataStartup (2018-2020) - 2 years\n  * Developed data pipelines using Python and pandas\n  * Worked with Redis for caching\n\nEducation:\n- B.S. in Computer Science, Tech University (2018)\n\nSkills: Python, FastAPI, PostgreSQL, Docker, Kubernetes, AWS, PyTorch, Git, Linux"
+  ]
+}

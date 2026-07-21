@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sieve — AI Resume Screening</title>
+  <meta name="description" content="Sieve helps teams upload resumes, rank candidates, and review shortlisted talent in one focused workspace." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== AUTH SCREEN ===== -->
+  <div id="auth-screen" class="auth-screen">
+    <div class="auth-ambient auth-amb-1"></div>
+    <div class="auth-ambient auth-amb-2"></div>
+    <div class="auth-ambient auth-amb-3"></div>
+
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <div class="brand-name">Sieve</div>
+          <div class="brand-subtitle">AI resume screening platform</div>
+        </div>
+      </div>
+
+      <!-- Single Unified Login & Portal Access Card -->
+      <div id="auth-unified-card" class="auth-unified-card">
+        <div class="auth-heading">
+          <h1>Welcome to Sieve AI</h1>
+          <p>Enterprise Resume Screening & Career Intelligence Platform</p>
+        </div>
+
+        <!-- Role Selector Segment Switcher -->
+        <div class="role-segment-row">
+          <button type="button" class="role-segment-btn active" id="role-btn-hr" onclick="setAuthRole('hr')">
+            <span class="role-seg-icon">🏢</span>
+            <div class="role-seg-text">
+              <strong>HR Recruiter</strong>
+              <small>Screen resumes & pipeline</small>
+            </div>
+          </button>
+          <button type="button" class="role-segment-btn" id="role-btn-candidate" onclick="setAuthRole('candidate')">
+            <span class="role-seg-icon">👤</span>
+            <div class="role-seg-text">
+              <strong>Job Seeker</strong>
+              <small>ATS check & apply roles</small>
+            </div>
+          </button>
+        </div>
+
+        <!-- Auth Tabs (Sign In / Sign Up) -->
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" id="tab-signin" role="tab" onclick="switchAuthTab('signin')">Sign In</button>
+          <button class="auth-tab" id="tab-signup" role="tab" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Unified Input Form -->
+        <div class="auth-form-body">
+          <div class="field-group" id="auth-name-group" hidden>
+            <label class="field-label" for="auth-name">Full Name</label>
+            <input type="text" id="auth-name" class="field-input" placeholder="e.g. Sarah Chen" autocomplete="name" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="auth-email">Work / Professional Email</label>
+            <input type="email" id="auth-email" class="field-input" placeholder="you@company.com" autocomplete="email" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="auth-password">Password</label>
+            <div class="password-input-wrap">
+              <input type="password" id="auth-password" class="field-input" placeholder="••••••••" autocomplete="current-password" />
+              <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('auth-password', this)">👁</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Role Detail Field -->
+          <div class="field-group" id="auth-detail-group">
+            <label class="field-label" id="auth-detail-label" for="auth-detail">Company / Organization</label>
+            <input type="text" id="auth-detail" class="field-input" placeholder="e.g. TechCorp Inc." />
+          </div>
+
+          <button class="btn-primary btn-block auth-submit-btn" id="auth-submit-btn" onclick="handleAuth()">
+            <span id="auth-btn-label">Sign In as HR Recruiter</span>
+          </button>
+
+          <div class="auth-divider"><span>or 1-Click Demo Sign In</span></div>
+
+          <div class="demo-buttons-row">
+            <button type="button" class="demo-quick-btn" onclick="handleDirectDemo('hr')">
+              <span>⚡ HR Demo (Sarah Chen)</span>
+            </button>
+            <button type="button" class="demo-quick-btn demo-candidate-btn" onclick="handleDirectDemo('candidate')">
+              <span>⚡ Candidate Demo (Priya Nair)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN APP WRAPPER (hidden until auth) ===== -->
+  <div id="app-wrapper" hidden>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar" role="banner">
+    <div class="brand-lockup">
+      <div class="brand-mark" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div>
+        <div class="brand-name">Sieve</div>
+        <div class="brand-subtitle">AI resume screening workspace</div>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <div class="breadcrumb" aria-label="Current location">
+        <span>Workspace</span>
+        <span class="breadcrumb-sep">/</span>
+        <span id="breadcrumb-label">Home</span>
+      </div>
+      <div class="topbar-meta">
+        <span id="screening-count">6 candidates</span>
+        <span class="meta-dot"></span>
+        <span id="file-count-meta">0 files</span>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Switch theme">🌙 Mode</button>
+      <div class="status-pill" id="status-pill">
+        <span class="status-dot"></span>
+        <span id="status-text">Ready</span>
+      </div>
+      <div class="topbar-user" id="topbar-user" hidden>
+        <div class="topbar-user-avatar" id="topbar-user-avatar">U</div>
+        <span id="topbar-user-name">User</span>
+      </div>
+      <button class="btn-primary" id="topbar-new-btn" hidden>New Screening</button>
+      <button class="btn-secondary topbar-logout" id="topbar-logout-btn" onclick="logout()" hidden>Sign Out</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" role="navigation" aria-label="Primary">
+      <div class="sidebar-head">
+        <div class="sidebar-title">Navigation</div>
+        <div class="sidebar-note">Focused workflow</div>
+      </div>
+
+      <nav class="nav-list" aria-label="Pages">
+        <!-- Both roles -->
+        <button class="nav-item active" id="nav-home" onclick="navigate('home')">
+          <span class="nav-item-icon">⌂</span><span>Home</span>
+        </button>
+
+        <!-- HR only -->
+        <button class="nav-item hr-nav" id="nav-upload" onclick="navigate('upload')">
+          <span class="nav-item-icon">⇡</span><span>Upload</span>
+        </button>
+        <button class="nav-item hr-nav" id="nav-candidates" onclick="navigate('candidates')">
+          <span class="nav-item-icon">▦</span><span>Candidates</span>
+        </button>
+        <button class="nav-item hr-nav" id="nav-dashboard" onclick="navigate('dashboard')">
+          <span class="nav-item-icon">▣</span><span>Analysis</span>
+        </button>
+        <button class="nav-item hr-nav" id="nav-applications" onclick="navigate('applications')">
+          <span class="nav-item-icon">📋</span><span>Applications</span>
+        </button>
+
+        <!-- Candidate only -->
+        <button class="nav-item candidate-nav" id="nav-my-applications" onclick="navigate('my-applications')">
+          <span class="nav-item-icon">📑</span><span>My Applications</span>
+        </button>
+        <button class="nav-item candidate-nav" id="nav-resume-create" onclick="navigate('resume-create')">
+          <span class="nav-item-icon">📄</span><span>Resume Create</span>
+        </button>
+        <button class="nav-item candidate-nav" id="nav-ats-check" onclick="navigate('ats-check')">
+          <span class="nav-item-icon">✅</span><span>ATS Check</span>
+        </button>
+        <button class="nav-item candidate-nav" id="nav-apply" onclick="navigate('apply')">
+          <span class="nav-item-icon">✉</span><span>Apply Job</span>
+        </button>
+
+        <!-- Both roles -->
+        <button class="nav-item" id="nav-profile" onclick="navigate('profile')">
+          <span class="nav-item-icon">☺</span><span>Profile</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-label">Current run</div>
+        <div class="sidebar-card-value" id="sidebar-summary">6 candidates ready</div>
+        <div class="sidebar-card-note">Upload resumes, run screening, then review only the strongest matches.</div>
+      </div>
+    </aside>
+
+    <main class="content" role="main">
+      <section id="page-home" class="page active" aria-label="Home page">
+        <div class="hero-panel">
+          <div class="hero-copy">
+            <span class="eyebrow">Resume screening, simplified</span>
+            <h1>Screen faster. Review better.</h1>
+            <p>Sieve is a browser-based hiring workspace for teams that need to screen resumes quickly on desktop, tablet, or mobile. It keeps the useful parts in one clear flow: upload resumes, rank candidates, analyze the funnel, and move top matches forward without digging through clutter.</p>
+            <div class="hero-actions">
+              <button class="btn-primary" onclick="navigate('upload')">Start Screening</button>
+              <button class="btn-secondary" onclick="navigate('candidates')">Review Candidates</button>
+            </div>
+          </div>
+          <div class="hero-panel-card">
+            <div class="hero-card-top">
+              <span class="hero-card-label">Pipeline health</span>
+              <span class="hero-card-badge">Live</span>
+            </div>
+            <div class="hero-card-score">
+              <strong id="hero-score">74.2</strong>
+              <span>Average match score</span>
+            </div>
+            <div class="hero-live-grid">
+              <div class="hero-live-stat">
+                <span class="hero-live-k">Running</span>
+                <strong>03</strong>
+                <span class="hero-live-v">screening jobs</span>
+              </div>
+              <div class="hero-live-stat">
+                <span class="hero-live-k">Ready</span>
+                <strong>06</strong>
+                <span class="hero-live-v">top matches</span>
+              </div>
+            </div>
+            <div class="hero-mini-bars" aria-hidden="true">
+              <div><span class="fill-92"></span></div>
+              <div><span class="fill-87"></span></div>
+              <div><span class="fill-79"></span></div>
+            </div>
+            <div class="hero-live-feed" aria-label="Live screening updates">
+              <div class="hero-live-row">
+                <span class="live-dot live-dot-green"></span>
+                <span>Priya Nair moved to interview-ready.</span>
+              </div>
+              <div class="hero-live-row">
+                <span class="live-dot live-dot-blue"></span>
+                <span>6 resumes indexed in the last run.</span>
+              </div>
+              <div class="hero-live-row">
+                <span class="live-dot live-dot-amber"></span>
+                <span>2 candidates need manual review.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-intro-grid">
+          <article class="feature-intro-card">
+            <div class="feature-intro-icon">A</div>
+            <h2>What this web app does</h2>
+            <p>Upload resumes, assign a role family if you want to narrow the match logic, and review an ordered shortlist based on score, fit, and experience.</p>
+          </article>
+          <article class="feature-intro-card">
+            <div class="feature-intro-icon">B</div>
+            <h2>Why it helps</h2>
+            <p>It replaces manual scanning with a focused interface that works well across screen sizes and keeps recruiters on the strongest candidates first.</p>
+          </article>
+        </div>
+
+        <div class="stat-grid" id="home-stats">
+          <article class="stat-card stat-blue">
+            <span class="stat-label">Resumes received</span>
+            <strong class="stat-value" id="stat-total">248</strong>
+          </article>
+          <article class="stat-card stat-green">
+            <span class="stat-label">Interview-ready</span>
+            <strong class="stat-value" id="stat-interview">2</strong>
+          </article>
+          <article class="stat-card stat-amber">
+            <span class="stat-label">Shortlisted</span>
+            <strong class="stat-value" id="stat-shortlisted">2</strong>
+          </article>
+          <article class="stat-card stat-slate">
+            <span class="stat-label">Under review</span>
+            <strong class="stat-value" id="stat-review">2</strong>
+          </article>
+        </div>
+
+        <div class="section-head">
+          <div>
+            <h2>Core workflow</h2>
+            <p>Only the features that matter for a screening cycle.</p>
+          </div>
+        </div>
+        <div class="workflow-grid">
+          <article class="workflow-card">
+            <div class="workflow-icon">1</div>
+            <h3>Upload resumes</h3>
+            <p>Add the job brief and candidate files to build a screening run.</p>
+          </article>
+          <article class="workflow-card">
+            <div class="workflow-icon">2</div>
+            <h3>Rank candidates</h3>
+            <p>Compare match score, skill fit, and experience without extra settings.</p>
+          </article>
+          <article class="workflow-card">
+            <div class="workflow-icon">3</div>
+            <h3>Review top matches</h3>
+            <p>Open a candidate card to inspect fit, gaps, and next actions.</p>
+          </article>
+        </div>
+
+        <div class="section-head section-head-space">
+          <div>
+            <h2>Recent activity</h2>
+            <p>The latest useful updates from the screening run.</p>
+          </div>
+        </div>
+        <div class="activity-list">
+          <div class="activity-row">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text"><strong>Priya Nair</strong> moved to interview-ready with a score of 92/100.</div>
+            <div class="activity-time">2 min ago</div>
+          </div>
+          <div class="activity-row">
+            <div class="activity-dot dot-blue"></div>
+            <div class="activity-text">Screening run completed for <strong>Senior ML Engineer</strong>.</div>
+            <div class="activity-time">14 min ago</div>
+          </div>
+          <div class="activity-row">
+            <div class="activity-dot dot-amber"></div>
+            <div class="activity-text"><strong>Jonas Kern</strong> added to shortlist after matching the core stack.</div>
+            <div class="activity-time">31 min ago</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-upload" class="page" aria-label="Upload page" hidden>
+        <div class="page-head">
+          <div>
+            <span class="eyebrow">Step 01</span>
+            <h1>Upload resumes</h1>
+            <p>Provide the job context, then add files to start a screening run.</p>
+          </div>
+        </div>
+
+        <div class="upload-grid">
+          <div class="panel-card">
+            <div class="panel-title-row">
+              <h2>Job brief</h2>
+              <span class="panel-badge">Required</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="job-title">Job title</label>
+              <input type="text" id="job-title" class="field-input" placeholder="Senior ML Engineer" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="role-family">Role family <span class="field-optional">optional</span></label>
+              <select id="role-family" class="field-input field-select">
+                <option value="" selected>Any role family</option>
+                <option>Machine Learning / AI</option>
+                <option>Backend</option>
+                <option>Frontend</option>
+                <option>Data Science</option>
+                <option>Product</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="jd-text">Job description</label>
+              <textarea id="jd-text" class="field-textarea" rows="7" placeholder="Describe the role, key outcomes, and team context."></textarea>
+            </div>
+            <div class="field-row-2">
+              <div class="field-group">
+                <label class="field-label" for="must-skills">Must-have skills</label>
+                <input type="text" id="must-skills" class="field-input" placeholder="python, pytorch, kubernetes" oninput="previewSkills('must-skills','must-preview','chip-green')" />
+                <div id="must-preview" class="skills-preview" aria-live="polite"></div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="nice-skills">Nice-to-have skills</label>
+                <input type="text" id="nice-skills" class="field-input" placeholder="mlflow, rlhf, rag" oninput="previewSkills('nice-skills','nice-preview','chip-amber')" />
+                <div id="nice-preview" class="skills-preview" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card panel-stack">
+            <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Drop files here or click to browse" onclick="document.getElementById('file-input').click()" onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('file-input').click()">
+              <div class="dropzone-icon">⇪</div>
+              <h2>Drop resumes here</h2>
+              <p id="dz-text">PDF or DOCX files are supported.</p>
+              <span class="dropzone-note">Upload the documents you want to screen in this run.</span>
+            </div>
+            <div id="file-count-row" class="file-count-row" hidden>
+              <span class="file-count-dot"></span>
+              <span id="file-count-label">0 files ready</span>
+            </div>
+            <div class="panel-card muted-card">
+              <h3>What happens next</h3>
+              <ul class="feature-list">
+                <li>Parse each resume and extract candidate skills.</li>
+                <li>Rank the list against the job brief.</li>
+                <li>Open the candidate view for detailed review.</li>
+              </ul>
+            </div>
+            <button class="btn-primary btn-block" id="run-btn" onclick="runScreening()">
+              <span id="run-label">Run screening</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-candidates" class="page" aria-label="Candidates page" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">Step 02</span>
+            <h1>Candidates</h1>
+            <p>Ranked results with only the controls you actually use.</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn-secondary" onclick="openCompareModal()">⚡ Compare Candidates</button>
+            <button class="btn-primary" onclick="openPostJobModal()">+ Post New Job</button>
+            <button class="btn-secondary" onclick="navigate('upload')">New screening</button>
+          </div>
+        </div>
+
+        <div class="candidate-toolbar">
+          <div class="search-wrap">
+            <label class="sr-only" for="candidate-search">Search candidates</label>
+            <input id="candidate-search" class="search-input" type="search" placeholder="Search name, role, or location" oninput="setCandidateQuery(this.value)" />
+          </div>
+          <div class="candidate-controls">
+            <div class="filter-tabs">
+              <button class="filter-tab active" onclick="filterCandidates('all',this)">All <span id="count-all">6</span></button>
+              <button class="filter-tab" onclick="filterCandidates('interview',this)">Interview-ready <span id="count-interview">2</span></button>
+              <button class="filter-tab" onclick="filterCandidates('shortlisted',this)">Shortlisted <span id="count-shortlisted">2</span></button>
+              <button class="filter-tab" onclick="filterCandidates('review',this)">Under review <span id="count-review">2</span></button>
+            </div>
+            <select id="sort-select" class="sort-select" onchange="sortCandidates(this.value)">
+              <option value="score">Sort by score</option>
+              <option value="exp">Sort by experience</option>
+              <option value="name">Sort by name</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-head" aria-hidden="true">
+          <span>#</span><span>Candidate</span><span>Experience</span><span>Top skills</span><span>Status</span><span>Score</span>
+        </div>
+        <div id="candidate-list" class="candidate-list" role="list"></div>
+        <p class="table-hint" id="candidate-hint">Select a candidate to open the review view.</p>
+      </section>
+
+      <section id="page-candidate-detail" class="page" aria-label="Candidate detail" hidden>
+        <button class="back-btn" onclick="navigate('candidates')">Back to candidates</button>
+
+        <div class="profile-header-card">
+          <div class="phc-left">
+            <div class="detail-avatar" id="detail-avatar"></div>
+            <div>
+              <p class="detail-role-label" id="detail-role-label"></p>
+              <h1 class="detail-name" id="detail-name"></h1>
+              <div class="detail-tags" id="detail-tags"></div>
+            </div>
+          </div>
+          <div class="phc-score">
+            <div class="score-ring-wrap">
+              <svg viewBox="0 0 100 100" class="score-ring-svg" aria-hidden="true">
+                <circle class="score-ring-track" cx="50" cy="50" r="42"></circle>
+                <circle class="score-ring-fill" id="score-ring-fill" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="score-ring-inner">
+                <span class="score-ring-num" id="detail-score-num"></span>
+                <span class="score-ring-denom">/100</span>
+              </div>
+            </div>
+            <p class="score-ring-label">Match score</p>
+            <span class="score-tier-badge" id="score-tier-badge"></span>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn-primary" onclick="showToast('Interview invitation queued ✓')">Schedule interview</button>
+          <button class="btn-secondary" onclick="showToast('Candidate added to shortlist ✓')">Add to shortlist</button>
+        </div>
+
+        <div class="detail-two-col">
+          <div class="detail-left">
+            <div class="detail-card">
+              <h2 class="detail-card-title">Score breakdown</h2>
+              <div id="breakdown-rows"></div>
+            </div>
+            <div class="detail-card">
+              <h2 class="detail-card-title">Work experience</h2>
+              <div id="timeline-rows"></div>
+            </div>
+          </div>
+          <div class="detail-right">
+            <div class="detail-card">
+              <h2 class="detail-card-title">Skill match</h2>
+              <div class="skills-group">
+                <p class="skills-section-label green-label">Matched <span class="skill-count-badge green-badge" id="matched-count-badge"></span></p>
+                <div id="matched-chips" class="chip-row"></div>
+              </div>
+              <div class="skills-group gap-group">
+                <p class="skills-section-label red-label">Gaps <span class="skill-count-badge red-badge" id="missing-count-badge"></span></p>
+                <div id="missing-chips" class="chip-row"></div>
+              </div>
+            </div>
+            <div class="detail-card">
+              <h2 class="detail-card-title">Private notes</h2>
+              <textarea class="notes-area" rows="4" placeholder="Add interview observations, compensation notes, or referral context."></textarea>
+              <button class="btn-secondary" onclick="showToast('Notes saved ✓')">Save notes</button>
+            </div>
+            <div class="detail-card ai-interview-card">
+              <div class="panel-title-row">
+                <h2 class="detail-card-title">🤖 Tailored AI Interview Questions</h2>
+                <span class="panel-badge">Auto-Generated</span>
+              </div>
+              <p class="ai-interview-desc">Questions customized based on candidate matched skills & JD gaps:</p>
+              <div id="ai-questions-list" class="ai-questions-list"></div>
+              <button class="btn-secondary btn-block" style="margin-top:10px" onclick="copyInterviewQuestions()">📋 Copy Questions</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-profile" class="page" aria-label="Profile page" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">Account</span>
+            <h1>Profile</h1>
+            <p>Update your account details and the hiring context shown in the workspace.</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn-secondary" onclick="showToast('Photo upload coming soon')">Change photo</button>
+          </div>
+        </div>
+
+        <div class="profile-layout">
+          <section class="profile-card profile-summary-card">
+            <div class="profile-avatar big-avatar av-0">SC</div>
+            <h2>Sarah Chen</h2>
+            <p>HR Director</p>
+            <span>Acme Corp · Singapore</span>
+            <div class="profile-badges">
+              <span class="profile-badge">Workspace owner</span>
+              <span class="profile-badge">3 active screenings</span>
+            </div>
+          </section>
+
+          <section class="profile-card profile-form-card">
+            <div class="panel-title-row">
+              <h2>Account details</h2>
+              <span class="panel-badge">Editable</span>
+            </div>
+            <div class="field-row-2">
+              <div class="field-group">
+                <label class="field-label" for="p-name">Full name</label>
+                <input type="text" id="p-name" class="field-input" value="Sarah Chen" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="p-email">Email</label>
+                <input type="email" id="p-email" class="field-input" value="sarah.chen@acmecorp.com" />
+              </div>
+            </div>
+            <div class="field-row-2">
+              <div class="field-group">
+                <label class="field-label" for="p-title">Job title</label>
+                <input type="text" id="p-title" class="field-input" value="HR Director" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="p-dept">Department</label>
+                <input type="text" id="p-dept" class="field-input" value="Human Resources" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="p-org">Organisation</label>
+              <input type="text" id="p-org" class="field-input" value="Acme Corp" />
+            </div>
+            <div class="profile-actions">
+              <button class="btn-primary" onclick="showToast('Profile saved ✓')">Save changes</button>
+              <button class="btn-secondary" onclick="showToast('Preferences synced ✓')">Sync preferences</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="page-dashboard" class="page" aria-label="Analysis dashboard page" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">Analysis</span>
+            <h1>Analysis dashboard</h1>
+            <p>Monitor the screening funnel, candidate quality, and the distribution of hiring outcomes.</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn-secondary" onclick="showToast('Report exported ✓')">Export report</button>
+          </div>
+        </div>
+
+        <div class="dashboard-kpi-grid">
+          <article class="dashboard-kpi dashboard-kpi-blue">
+            <span class="dashboard-kpi-value">74.2</span>
+            <span class="dashboard-kpi-label">Average score</span>
+          </article>
+          <article class="dashboard-kpi dashboard-kpi-green">
+            <span class="dashboard-kpi-value">8</span>
+            <span class="dashboard-kpi-label">Interview-ready</span>
+          </article>
+          <article class="dashboard-kpi dashboard-kpi-amber">
+            <span class="dashboard-kpi-value">36</span>
+            <span class="dashboard-kpi-label">Shortlisted</span>
+          </article>
+          <article class="dashboard-kpi">
+            <span class="dashboard-kpi-value">3.2h</span>
+            <span class="dashboard-kpi-label">Time saved</span>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="dashboard-card">
+            <h2 class="dashboard-card-title">Screening funnel</h2>
+            <div class="funnel-list">
+              <div class="funnel-row"><span>Resumes received</span><div><span class="funnel-fill" data-width="100"></span></div><strong>248</strong></div>
+              <div class="funnel-row"><span>Passed keyword filter</span><div><span class="funnel-fill funnel-mid" data-width="65"></span></div><strong>161</strong></div>
+              <div class="funnel-row"><span>AI score ≥ 60</span><div><span class="funnel-fill funnel-mid" data-width="30"></span></div><strong>74</strong></div>
+              <div class="funnel-row"><span>Shortlisted</span><div><span class="funnel-fill funnel-amber" data-width="14"></span></div><strong>36</strong></div>
+              <div class="funnel-row"><span>Interview-ready</span><div><span class="funnel-fill funnel-green" data-width="3"></span></div><strong>8</strong></div>
+            </div>
+          </section>
+
+          <section class="dashboard-card">
+            <h2 class="dashboard-card-title">Outcome mix</h2>
+            <div class="dashboard-donut">
+              <div class="donut-circle">
+                <div class="donut-center">
+                  <strong>6</strong>
+                  <span>candidates</span>
+                </div>
+              </div>
+            </div>
+            <div class="legend-list">
+              <div><span class="legend-swatch green-swatch"></span>Interview-ready <strong>2</strong></div>
+              <div><span class="legend-swatch amber-swatch"></span>Shortlisted <strong>2</strong></div>
+              <div><span class="legend-swatch slate-swatch"></span>Under review <strong>2</strong></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="dashboard-card dashboard-card-wide">
+          <h2 class="dashboard-card-title">Top candidates by score</h2>
+          <div class="score-list">
+            <div class="score-list-row"><span>Priya Nair</span><div><span class="score-fill" data-width="92"></span></div><strong>92</strong></div>
+            <div class="score-list-row"><span>Jonas Kern</span><div><span class="score-fill" data-width="87"></span></div><strong>87</strong></div>
+            <div class="score-list-row"><span>Camille Dufresne</span><div><span class="score-fill score-fill-amber" data-width="79"></span></div><strong>79</strong></div>
+            <div class="score-list-row"><span>Arjun Mehta</span><div><span class="score-fill score-fill-amber" data-width="72"></span></div><strong>72</strong></div>
+            <div class="score-list-row"><span>Fatimah Al-Rashid</span><div><span class="score-fill score-fill-red" data-width="65"></span></div><strong>65</strong></div>
+            <div class="score-list-row"><span>Tobias Wren</span><div><span class="score-fill score-fill-red" data-width="59"></span></div><strong>59</strong></div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== APPLY JOB PAGE ===== -->
+      <section id="page-apply" class="page" aria-label="Apply for a job" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">Candidate Portal</span>
+            <h1>Apply for a Job</h1>
+            <p>Browse open positions and submit your application with your resume in minutes.</p>
+          </div>
+        </div>
+
+        <!-- Job Listings -->
+        <div class="section-head" id="apply-listings-head">
+          <div>
+            <h2>Open Positions</h2>
+            <p>Select a role to start your application.</p>
+          </div>
+        </div>
+        <div class="job-listings-grid" id="job-listings-grid">
+
+          <article class="job-card" id="job-card-1">
+            <div class="job-card-top">
+              <span class="job-card-badge badge-blue">Machine Learning</span>
+              <span class="job-card-salary">₹28L – ₹46L / yr</span>
+            </div>
+            <h3 class="job-card-title">Senior ML Engineer</h3>
+            <p class="job-card-meta">📍 Bangalore, IN &nbsp;·&nbsp; Full-time &nbsp;·&nbsp; 5+ yrs exp.</p>
+            <p class="job-card-desc">Design and deploy large-scale ML models in production. You'll work on LLM fine-tuning, distributed training pipelines, and model serving at scale using PyTorch, Kubernetes, and MLflow.</p>
+            <div class="job-card-skills">
+              <span class="chip chip-green">PyTorch</span>
+              <span class="chip chip-green">Kubernetes</span>
+              <span class="chip chip-green">MLflow</span>
+              <span class="chip chip-amber">RLHF</span>
+            </div>
+            <button class="btn-primary job-apply-btn" onclick="openApplyForm(1, 'Senior ML Engineer', 'Machine Learning', 'Bangalore, IN', 'Design and deploy large-scale ML models in production. You will work on LLM fine-tuning, distributed training pipelines, and model serving at scale using PyTorch, Kubernetes, and MLflow. The role requires deep expertise in distributed systems and a track record of shipping ML products. Key responsibilities: lead model architecture decisions, mentor junior engineers, collaborate cross-functionally with product and infrastructure teams.')" id="apply-btn-1">Apply Now</button>
+          </article>
+
+          <article class="job-card" id="job-card-2">
+            <div class="job-card-top">
+              <span class="job-card-badge badge-purple">Data Science</span>
+              <span class="job-card-salary">₹18L – ₹32L / yr</span>
+            </div>
+            <h3 class="job-card-title">Data Scientist</h3>
+            <p class="job-card-meta">📍 Remote &nbsp;·&nbsp; Full-time &nbsp;·&nbsp; 3+ yrs exp.</p>
+            <p class="job-card-desc">Own the analytics stack from data wrangling to insight delivery. Build forecasting models, dashboards, and experimentation frameworks that drive product decisions using Python, SQL, and modern BI tools.</p>
+            <div class="job-card-skills">
+              <span class="chip chip-green">Python</span>
+              <span class="chip chip-green">SQL</span>
+              <span class="chip chip-green">Scikit-learn</span>
+              <span class="chip chip-amber">dbt</span>
+            </div>
+            <button class="btn-primary job-apply-btn" onclick="openApplyForm(2, 'Data Scientist', 'Data Science', 'Remote', 'Own the analytics stack from data wrangling to insight delivery. Build forecasting models, dashboards, and experimentation frameworks that drive product decisions using Python, SQL, and modern BI tools. You will work closely with product managers and business leaders to surface meaningful insights and measure impact. Key requirements: strong statistical foundations, experience with A/B testing, and comfort with large datasets.')" id="apply-btn-2">Apply Now</button>
+          </article>
+
+          <article class="job-card" id="job-card-3">
+            <div class="job-card-top">
+              <span class="job-card-badge badge-green">Engineering</span>
+              <span class="job-card-salary">₹20L – ₹38L / yr</span>
+            </div>
+            <h3 class="job-card-title">Backend Engineer</h3>
+            <p class="job-card-meta">📍 Hyderabad, IN &nbsp;·&nbsp; Full-time &nbsp;·&nbsp; 4+ yrs exp.</p>
+            <p class="job-card-desc">Build and maintain the API layer that powers our AI screening platform. Work on high-throughput data pipelines, resume parsing services, and REST/GraphQL APIs using Node.js, PostgreSQL, and Docker.</p>
+            <div class="job-card-skills">
+              <span class="chip chip-green">Node.js</span>
+              <span class="chip chip-green">PostgreSQL</span>
+              <span class="chip chip-green">Docker</span>
+              <span class="chip chip-amber">GraphQL</span>
+            </div>
+            <button class="btn-primary job-apply-btn" onclick="openApplyForm(3, 'Backend Engineer', 'Engineering', 'Hyderabad, IN', 'Build and maintain the API layer that powers our AI screening platform. Work on high-throughput data pipelines, resume parsing services, and REST/GraphQL APIs using Node.js, PostgreSQL, and Docker. You will own service reliability, help design new microservices, and contribute to platform security and scalability. Ideal candidate has experience with CI/CD, containerised environments, and API design best practices.')" id="apply-btn-3">Apply Now</button>
+          </article>
+
+        </div>
+
+        <!-- Inline Application Form -->
+        <div class="apply-form-panel" id="apply-form-panel" hidden>
+          <div class="apply-form-header">
+            <div>
+              <span class="eyebrow" id="apply-form-role-badge">Role</span>
+              <h2 id="apply-form-title">Application Form</h2>
+              <p id="apply-form-dept-loc">Department · Location</p>
+            </div>
+            <button class="btn-secondary" onclick="closeApplyForm()" aria-label="Close form">✕ Close</button>
+          </div>
+
+          <div class="apply-form-body">
+            <div class="panel-card apply-form-card">
+              <div class="panel-title-row">
+                <h2>Your Details</h2>
+                <span class="panel-badge">All fields required</span>
+              </div>
+              <div class="field-row-2">
+                <div class="field-group">
+                  <label class="field-label" for="af-name">Full name</label>
+                  <input type="text" id="af-name" class="field-input" placeholder="Priya Nair" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="af-email">Email address</label>
+                  <input type="email" id="af-email" class="field-input" placeholder="you@example.com" />
+                </div>
+              </div>
+              <div class="field-row-2">
+                <div class="field-group">
+                  <label class="field-label" for="af-phone">Phone number</label>
+                  <input type="tel" id="af-phone" class="field-input" placeholder="+91 98765 43210" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="af-exp">Years of experience</label>
+                  <input type="number" id="af-exp" class="field-input" placeholder="5" min="0" max="40" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="af-cover">Why do you want this role?</label>
+                <textarea id="af-cover" class="field-textarea" rows="5" placeholder="Tell us about your motivation, relevant experience, and what you'd bring to this position..."></textarea>
+              </div>
+            </div>
+
+            <div class="panel-card apply-resume-card">
+              <div class="panel-title-row">
+                <h2>Resume</h2>
+                <span class="panel-badge">PDF or DOCX</span>
+              </div>
+              <div class="dropzone apply-dropzone" id="apply-dropzone" role="button" tabindex="0"
+                   aria-label="Drop resume here or click to browse"
+                   onclick="document.getElementById('af-resume').click()"
+                   onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('af-resume').click()">
+                <div class="dropzone-icon">⇪</div>
+                <h2>Drop your resume</h2>
+                <p id="af-dz-text">PDF or DOCX · max 10 MB</p>
+                <span class="dropzone-note">Your resume will be sent directly to the hiring team.</span>
+              </div>
+              <div id="af-file-row" class="file-count-row" hidden>
+                <span class="file-count-dot"></span>
+                <span id="af-file-label">No file selected</span>
+              </div>
+              <input type="file" id="af-resume" accept=".pdf,.docx" hidden onchange="handleApplyResume(this)" />
+
+              <div class="apply-jd-box">
+                <div class="apply-jd-label">Job description</div>
+                <div class="apply-jd-text" id="apply-jd-text">Select a role to see the full job description.</div>
+              </div>
+
+              <button class="btn-primary btn-block" id="af-submit-btn" onclick="submitApplication()">
+                <span id="af-submit-label">Submit Application</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== APPLICATIONS (HR) PAGE ===== -->
+      <section id="page-applications" class="page" aria-label="HR Applications inbox" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">HR Inbox</span>
+            <h1>Applications</h1>
+            <p>Review, shortlist, or reject submitted applications from candidates.</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn-secondary" onclick="showToast('Report exported ✓')">Export report</button>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="app-kpi-grid" id="app-kpi-grid">
+          <article class="app-kpi app-kpi-blue">
+            <span class="app-kpi-value" id="kpi-total">0</span>
+            <span class="app-kpi-label">Total received</span>
+          </article>
+          <article class="app-kpi app-kpi-amber">
+            <span class="app-kpi-value" id="kpi-new">0</span>
+            <span class="app-kpi-label">New / Unreviewed</span>
+          </article>
+          <article class="app-kpi app-kpi-green">
+            <span class="app-kpi-value" id="kpi-shortlisted">0</span>
+            <span class="app-kpi-label">Shortlisted</span>
+          </article>
+          <article class="app-kpi app-kpi-red">
+            <span class="app-kpi-value" id="kpi-rejected">0</span>
+            <span class="app-kpi-label">Rejected</span>
+          </article>
+        </div>
+
+        <!-- Applications list -->
+        <div class="app-list-wrap">
+          <div class="app-list-header" aria-hidden="true">
+            <span>Candidate</span>
+            <span>Role applied</span>
+            <span>Submitted</span>
+            <span>Resume</span>
+            <span>Status</span>
+            <span>Actions</span>
+          </div>
+          <div id="app-list" class="app-list" role="list">
+            <div class="app-empty" id="app-empty">
+              <div class="app-empty-icon">📭</div>
+              <p>No applications received yet.</p>
+              <p>Once candidates submit through <strong>Apply Job</strong>, they'll appear here.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== RESUME CREATE (Candidate) ===== -->
+      <section id="page-resume-create" class="page" aria-label="Resume builder" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">Resume Builder</span>
+            <h1>Create Your Resume</h1>
+            <p>Fill in your details, select a design template, and generate a print-ready resume.</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn-secondary" onclick="loadSampleResumeData()">Load Sample Data</button>
+            <button class="btn-primary" onclick="downloadResume()">Download PDF</button>
+          </div>
+        </div>
+
+        <!-- TEMPLATE SELECTOR CARDS -->
+        <div class="template-selector-grid">
+          <div class="template-card active" id="tpl-card-modern" onclick="selectTemplate('modern')">
+            <div class="template-thumb">
+              <div class="template-thumb-bar"></div>
+              <div class="template-thumb-lines">
+                <div class="template-thumb-line"></div>
+                <div class="template-thumb-line short"></div>
+              </div>
+            </div>
+            <span class="template-name">Modern Executive</span>
+          </div>
+
+          <div class="template-card" id="tpl-card-tech" onclick="selectTemplate('tech')">
+            <div class="template-thumb" style="background:#1e293b">
+              <div class="template-thumb-bar" style="background:#2563eb"></div>
+              <div class="template-thumb-lines">
+                <div class="template-thumb-line" style="background:#475569"></div>
+                <div class="template-thumb-line short" style="background:#475569"></div>
+              </div>
+            </div>
+            <span class="template-name">Tech Minimalist</span>
+          </div>
+
+          <div class="template-card" id="tpl-card-classic" onclick="selectTemplate('classic')">
+            <div class="template-thumb">
+              <div class="template-thumb-lines" style="align-items:center;text-align:center">
+                <div class="template-thumb-line short" style="background:#2563eb;height:6px"></div>
+                <div class="template-thumb-line"></div>
+                <div class="template-thumb-line short"></div>
+              </div>
+            </div>
+            <span class="template-name">Classic Serif</span>
+          </div>
+
+          <div class="template-card" id="tpl-card-creative" onclick="selectTemplate('creative')">
+            <div class="template-thumb">
+              <div class="template-thumb-side">
+                <div class="template-thumb-side-bar"></div>
+                <div class="template-thumb-lines">
+                  <div class="template-thumb-line"></div>
+                  <div class="template-thumb-line short"></div>
+                </div>
+              </div>
+            </div>
+            <span class="template-name">Creative 2-Col</span>
+          </div>
+
+          <div class="template-card" id="tpl-card-compact" onclick="selectTemplate('compact')">
+            <div class="template-thumb">
+              <div class="template-thumb-lines">
+                <div class="template-thumb-line"></div>
+                <div class="template-thumb-line"></div>
+                <div class="template-thumb-line short"></div>
+              </div>
+            </div>
+            <span class="template-name">Compact Grid</span>
+          </div>
+        </div>
+
+        <!-- COLOR & FONT CUSTOMIZATION BAR -->
+        <div class="controls-row">
+          <div class="control-group">
+            <span class="control-label">Accent Theme:</span>
+            <div class="color-picker">
+              <div class="color-pill active" style="background:#2563eb" onclick="selectResumeColor('#2563eb', this)" title="Sapphire Blue"></div>
+              <div class="color-pill" style="background:#059669" onclick="selectResumeColor('#059669', this)" title="Emerald Green"></div>
+              <div class="color-pill" style="background:#7c3aed" onclick="selectResumeColor('#7c3aed', this)" title="Royal Purple"></div>
+              <div class="color-pill" style="background:#dc2626" onclick="selectResumeColor('#dc2626', this)" title="Crimson Red"></div>
+              <div class="color-pill" style="background:#1f2937" onclick="selectResumeColor('#1f2937', this)" title="Charcoal Dark"></div>
+            </div>
+          </div>
+          <div class="control-group">
+            <span class="control-label">Typography:</span>
+            <select class="font-select" onchange="selectResumeFont(this.value)">
+              <option value="'Inter', sans-serif">Inter (Modern Sans)</option>
+              <option value="'Roboto', sans-serif">Roboto (Clean)</option>
+              <option value="'Georgia', serif">Georgia (Classic Serif)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="resume-builder-grid">
+          <div class="resume-form-col">
+            <div class="panel-card">
+              <div class="panel-title-row"><h2>Personal Information</h2><span class="panel-badge">Required</span></div>
+              <div class="field-row-2">
+                <div class="field-group"><label class="field-label" for="rb-name">Full name</label><input type="text" id="rb-name" class="field-input" placeholder="Priya Nair" oninput="buildResumePreview()" /></div>
+                <div class="field-group"><label class="field-label" for="rb-title">Professional title</label><input type="text" id="rb-title" class="field-input" placeholder="Senior ML Engineer" oninput="buildResumePreview()" /></div>
+              </div>
+              <div class="field-row-2">
+                <div class="field-group"><label class="field-label" for="rb-email">Email</label><input type="email" id="rb-email" class="field-input" placeholder="priya@example.com" oninput="buildResumePreview()" /></div>
+                <div class="field-group"><label class="field-label" for="rb-phone">Phone</label><input type="tel" id="rb-phone" class="field-input" placeholder="+91 98765 43210" oninput="buildResumePreview()" /></div>
+              </div>
+              <div class="field-row-2">
+                <div class="field-group"><label class="field-label" for="rb-location">Location</label><input type="text" id="rb-location" class="field-input" placeholder="Bangalore, IN" oninput="buildResumePreview()" /></div>
+                <div class="field-group"><label class="field-label" for="rb-linkedin">LinkedIn <span class="field-optional">optional</span></label><input type="url" id="rb-linkedin" class="field-input" placeholder="linkedin.com/in/priya" oninput="buildResumePreview()" /></div>
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="panel-title-row"><h2>Professional Summary</h2></div>
+              <div class="field-group"><textarea id="rb-summary" class="field-textarea" rows="4" placeholder="Experienced ML engineer with 8 years building production-scale AI systems..." oninput="buildResumePreview()"></textarea></div>
+            </div>
+
+            <!-- DYNAMIC WORK EXPERIENCE SECTION -->
+            <div class="panel-card">
+              <div class="panel-title-row">
+                <h2>Work Experience</h2>
+                <button type="button" class="btn-add-entry" onclick="addExperienceEntry()">+ Add Role</button>
+              </div>
+              <div id="experience-entries-container">
+                <!-- Dynamic experience entries rendered here -->
+              </div>
+            </div>
+
+            <!-- DYNAMIC EDUCATION SECTION -->
+            <div class="panel-card">
+              <div class="panel-title-row">
+                <h2>Education</h2>
+                <button type="button" class="btn-add-entry" onclick="addEducationEntry()">+ Add Education</button>
+              </div>
+              <div id="education-entries-container">
+                <!-- Dynamic education entries rendered here -->
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="panel-title-row"><h2>Skills</h2></div>
+              <div class="field-group">
+                <label class="field-label" for="rb-skills">Technical skills <span class="field-optional">comma-separated</span></label>
+                <input type="text" id="rb-skills" class="field-input" placeholder="PyTorch, Kubernetes, MLflow, Python, RLHF" oninput="buildResumePreview()" />
+                <div id="rb-skills-preview" class="skills-preview" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="resume-preview-col">
+            <div class="resume-preview-label">Live Preview</div>
+            <div class="resume-preview-card tpl-modern" id="resume-preview-card">
+              <div class="rp-empty">
+                <div class="rp-empty-icon">📄</div>
+                <p>Start filling in your details to see your resume preview here.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ATS CHECK (Candidate) ===== -->
+      <section id="page-ats-check" class="page" aria-label="ATS Score Checker" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">Candidate Tool</span>
+            <h1>ATS Score Checker</h1>
+            <p>Check how well your resume matches a job description before you apply.</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn-secondary" onclick="loadSampleATSData()">Load Sample Job & Resume</button>
+          </div>
+        </div>
+
+        <div class="ats-grid">
+          <div class="panel-card">
+            <div class="panel-title-row"><h2>Job Description</h2><span class="panel-badge">Paste here</span></div>
+            <div class="field-group">
+              <textarea id="ats-jd" class="field-textarea ats-textarea" rows="14" placeholder="Paste the full job description here...&#10;&#10;We are looking for a Senior ML Engineer with experience in PyTorch, Kubernetes, MLflow..."></textarea>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-title-row"><h2>Your Resume</h2><span class="panel-badge">Paste here</span></div>
+            <div class="field-group">
+              <textarea id="ats-resume" class="field-textarea ats-textarea" rows="14" placeholder="Paste your resume text here...&#10;&#10;Tip: Copy the text from your Word or PDF resume and paste it here."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="ats-run-row">
+          <button class="btn-primary ats-check-btn" id="ats-run-btn" onclick="simpleATSCheck()">
+            <span id="ats-run-label">Check ATS Score</span>
+          </button>
+          <p class="ats-note">We analyse keyword overlap, skill matches, and section completeness.</p>
+        </div>
+
+        <div id="ats-results" class="ats-results" hidden></div>
+      </section>
+
+      <!-- ===== MY APPLICATIONS (Candidate) ===== -->
+      <section id="page-my-applications" class="page" aria-label="My Applications" hidden>
+        <div class="page-head page-head-row">
+          <div>
+            <span class="eyebrow">Candidate Portal</span>
+            <h1>My Applications</h1>
+            <p>Track the status of your submitted job applications in real time.</p>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn-primary" onclick="navigate('apply')">Apply for More Jobs</button>
+          </div>
+        </div>
+
+        <div class="my-apps-grid" id="my-apps-grid"></div>
+      </section>
+
+    </main>
+  </div>
+  </div><!-- end app-wrapper -->
+
+  <!-- ===== SIDE-BY-SIDE CANDIDATE COMPARISON MODAL ===== -->
+  <div id="compare-modal" class="modal-backdrop" hidden onclick="if(event.target===this)closeCompareModal()">
+    <div class="modal-card compare-modal-card">
+      <div class="modal-header">
+        <div>
+          <h2>⚡ Side-by-Side Candidate Comparison</h2>
+          <p>Compare fit score, technical skills overlap, and experience metrics</p>
+        </div>
+        <button class="modal-close-btn" onclick="closeCompareModal()">✕</button>
+      </div>
+      <div class="compare-selector-row">
+        <div class="field-group">
+          <label class="field-label" for="compare-c1">Candidate A</label>
+          <select id="compare-c1" class="field-input field-select" onchange="updateComparison()"></select>
+        </div>
+        <div class="compare-vs-badge">VS</div>
+        <div class="field-group">
+          <label class="field-label" for="compare-c2">Candidate B</label>
+          <select id="compare-c2" class="field-input field-select" onchange="updateComparison()"></select>
+        </div>
+      </div>
+      <div id="compare-matrix" class="compare-matrix"></div>
+    </div>
+  </div>
+
+  <!-- ===== HR POST NEW JOB MODAL ===== -->
+  <div id="post-job-modal" class="modal-backdrop" hidden onclick="if(event.target===this)closePostJobModal()">
+    <div class="modal-card post-job-card">
+      <div class="modal-header">
+        <div>
+          <h2>+ Post a New Open Position</h2>
+          <p>Add a job description to recruit candidates and enable instant applications</p>
+        </div>
+        <button class="modal-close-btn" onclick="closePostJobModal()">✕</button>
+      </div>
+      <div class="field-row-2">
+        <div class="field-group">
+          <label class="field-label" for="pj-title">Job Title</label>
+          <input type="text" id="pj-title" class="field-input" placeholder="e.g. Lead Frontend Engineer" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pj-dept">Department</label>
+          <input type="text" id="pj-dept" class="field-input" placeholder="Engineering / Product" />
+        </div>
+      </div>
+      <div class="field-row-2">
+        <div class="field-group">
+          <label class="field-label" for="pj-location">Location</label>
+          <input type="text" id="pj-location" class="field-input" placeholder="Bangalore, IN / Remote" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pj-salary">Salary Range</label>
+          <input type="text" id="pj-salary" class="field-input" placeholder="₹24L – ₹40L / yr" />
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="pj-skills">Must-have Skills (comma-separated)</label>
+        <input type="text" id="pj-skills" class="field-input" placeholder="React, TypeScript, Node.js, GraphQL" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="pj-desc">Job Description & Responsibilities</label>
+        <textarea id="pj-desc" class="field-textarea" rows="5" placeholder="Describe the role, key responsibilities, and team expectations..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closePostJobModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitNewJob()">Publish Job Listing</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="file-input" accept=".pdf,.docx" multiple hidden onchange="handleFiles(this)" />
+
+  <script src="app.js"></script>
+</body>
+</html>
